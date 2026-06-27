@@ -86,18 +86,6 @@ Generate Gmail App Password: Google Account → Security → 2-Step Verification
 
 ---
 
-## 📱 Android App
-
-See `android_app/README_ANDROID.md` for full setup.
-
-Requires Django REST Framework:
-```bash
-pip install djangorestframework djangorestframework-simplejwt
-```
-
-Features: Dashboard, Prayer Requests mgmt, Query responses, Event CRUD, Readings update, Donations view, Push notifications.
-
----
 
 ## 🏗️ Production Deployment
 
