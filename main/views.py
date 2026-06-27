@@ -5,15 +5,29 @@ from django.conf import settings
 from django.utils import timezone
 from .models import (OrganizationTiming, Priest, ServiceTiming, SundayReading, Event, CommitteeMember,
                      Organization, PrayerRequest, Query, GalleryPhoto, SiteContent)
-from django.core.cache import cache
-from .scraper import scrape_lectionary
 import datetime
+import json
+import os
 
 
 
-def get_site_content():
-    content, _ = SiteContent.objects.get_or_create(pk=1)
-    return content
+def get_readings():
+    file_path = os.path.join(
+        os.path.dirname(__file__),
+        "readings.json"
+    )
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {
+            "lesson1": "",
+            "lesson2": "",
+            "epistle": "",
+            "gospel": "",
+            "date": ""
+        }
 
 
 def get_live_readings():
@@ -28,8 +42,8 @@ def get_live_readings():
 
 def home(request):
     content = get_site_content()
+    data = scrape_lectionary()
     sunday_readings = get_live_readings()
-    selected_songs = SundayReading.objects.order_by('-date').first()
     sunday_services = ServiceTiming.objects.filter(day='Sunday', is_active=True)
     weekday_services = ServiceTiming.objects.filter(day__in=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Daily'], is_active=True)
     org_timings = ServiceTiming.objects.filter(is_active=True).exclude(day__in=['Sunday','Daily'])
