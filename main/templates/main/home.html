@@ -199,10 +199,10 @@
     </div>
     <div class="sunday-card reveal delay-1">
       <div class="sunday-card-title">Selected Song Numbers</div>
-      {% if sunday_readings.hymn1 %}<div class="timing-row"><span class="timing-label">Opening Hymn 1</span><span class="timing-time">No. {{ sunday_readings.hymn1 }}</span></div>{% endif %}
-      {% if sunday_readings.hymn2 %}<div class="timing-row"><span class="timing-label">Opening Hymn 2</span><span class="timing-time">No. {{ sunday_readings.hymn2 }}</span></div>{% endif %}
-      {% if sunday_readings.offertory %}<div class="timing-row"><span class="timing-label">Offertory Song</span><span class="timing-time">No. {{ sunday_readings.offertory }}</span></div>{% endif %}
-      {% if sunday_readings.communion %}<div class="timing-row"><span class="timing-label">Communion Hymn</span><span class="timing-time">No. {{ sunday_readings.communion }}</span></div>{% endif %}
+      {% if selected_songs.hymn1 %}<div class="timing-row"><span class="timing-label">Opening Hymn 1</span><span class="timing-time">No. {{ selected_songs.hymn1 }}</span></div>{% endif %}
+      {% if selected_songs.hymn2 %}<div class="timing-row"><span class="timing-label">Opening Hymn 2</span><span class="timing-time">No. {{ selected_songs.hymn2 }}</span></div>{% endif %}
+      {% if selected_songs.offertory %}<div class="timing-row"><span class="timing-label">Offertory Song</span><span class="timing-time">No. {{ selected_songs.offertory }}</span></div>{% endif %}
+      {% if selected_songs.communion %}<div class="timing-row"><span class="timing-label">Communion Hymn</span><span class="timing-time">No. {{ selected_songs.communion }}</span></div>{% endif %}
     </div>
   </div>
   {% if sunday_readings.live_info %}
