@@ -1,0 +1,318 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Home{% endblock %}
+
+{% block extra_head %}
+<style>
+/* HERO */
+.home-hero-row { display:grid; grid-template-columns:3fr 1fr; min-height:709px; background:var(--burgundy-dark); }
+.hero-left { position:relative; z-index:0; overflow:hidden; min-height:709px; }
+.hero-church-bg { position:absolute; inset:0; opacity:0.55; background:rgba(0, 0, 0, 0.903); }
+.hero-church-bg-img { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; opacity:1; }
+.hero-church-bg-img img { width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
+.hero-content { position:relative; z-index:2; padding:4.5rem 3rem; height:100%; display:flex; flex-direction:column; justify-content:center; }
+.hero-eyebrow { font-family:'Montserrat',sans-serif; color:var(--gold); font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; margin-bottom:1rem; animation:fadeInUp 0.7s ease; }
+.hero-title { font-family:'Montserrat',sans-serif; font-weight:600; color:var(--white); font-size:3rem; line-height:1.15; margin-bottom:1.2rem; animation:fadeInUp 0.7s 0.15s ease both; }
+.hero-title em { color:var(--gold); font-style:normal; }
+.hero-desc { color:rgba(255,255,255,0.72); font-size:1rem; max-width:500px; line-height:1.75; margin-bottom:2rem; animation:fadeInUp 0.7s 0.3s ease both; }
+.hero-btns { display:flex; gap:1rem; flex-wrap:wrap; animation:fadeInUp 0.7s 0.45s ease both; }
+
+/* Events sidebar */
+.hero-events { z-index:1; background:rgba(0, 36, 0, 0.689); border-left:1px solid rgba(201,168,76,0.25); padding:1.5rem 1.2rem; overflow-y:auto; opacity:0.75; }
+.sidebar-title { font-family:'Montserrat',sans-serif; color:var(--gold); font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; border-bottom:1px solid rgba(201,168,76,0.3); padding-bottom:0.75rem; margin-bottom:1rem; }
+.event-item { padding:0.75rem 0; border-bottom:1px solid rgba(255,255,255,0.07); transition:background 0.2s; }
+.event-item:last-child { border-bottom:none; }
+.event-date { font-size:0.7rem; color:var(--gold-light); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.25rem; }
+.event-name { color:var(--white); font-size:0.85rem; line-height:1.4; font-weight:700; }
+.event-time { color:rgba(255,255,255,0.5); font-size:0.75rem; margin-top:0.2rem; }
+
+/* Timings */
+.timings-section { background:#FFFFFF; padding:5rem 3rem; }
+.timings-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; max-width:1100px; margin:0 auto; }
+.timing-card { background:var(--white); border:1px solid var(--cream-dark); border-top:4px solid var(--burgundy); padding:1.75rem; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.04); transition:transform 0.25s, box-shadow 0.25s; }
+.timing-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(45,106,79,0.12); }
+.timing-card-title { font-family:'Montserrat',sans-serif; font-weight:600; color:var(--burgundy); font-size:1rem; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--cream-dark); }
+
+.sunday-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; max-width:1100px; margin:2.5rem auto 0; }
+.sunday-card { background:var(--white); border:1px solid var(--cream-dark); border-left:4px solid var(--gold); padding:1.75rem; border-radius:8px; transition:transform 0.25s; }
+.sunday-card:hover { transform:translateY(-3px); }
+.sunday-card-title { font-family:'Montserrat',sans-serif; font-weight:600; color:var(--gold-dark); font-size:0.9rem; margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.1em; }
+.live-prayer-banner { background:var(--burgundy); color:var(--white); padding:1.2rem 2rem; border-radius:8px; display:flex; align-items:center; gap:1rem; max-width:1100px; margin:2.5rem auto 0; animation:glow 3s infinite; }
+
+/* Orgs */
+.orgs-section { background:var(--burgundy-dark); padding:5rem 3rem; }
+.orgs-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.5rem; max-width:1100px; margin:0 auto; justify-content:center; }
+.org-img-placeholder { width:100%; height:200px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.org-img-placeholder img { width:100%; height:100%; object-fit:cover; transition:transform .4s ease; }
+.org-card { background:rgba(255,255,255,0.06); border:1px solid rgba(201,168,76,0.2); border-radius:10px; overflow:hidden; transition:transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
+.org-card:hover { transform:translateY(-6px); border-color:var(--gold); box-shadow:0 12px 30px rgba(0,0,0,0.3); }
+.org-card:hover .org-img-placeholder img { transform:scale(1.08); }
+.org-card-body { padding:1.2rem; }
+.org-name { font-family:'Montserrat',sans-serif; font-weight:600; color:var(--gold); font-size:1rem; margin-bottom:0.4rem; }
+.org-desc { color:rgba(255,255,255,0.6); font-size:0.78rem; line-height:1.55; }
+.delay-0 { animation-delay:0ms; }
+.delay-1 { animation-delay:100ms; }
+.delay-2 { animation-delay:200ms; }
+.delay-3 { animation-delay:300ms; }
+.delay-4 { animation-delay:400ms; }
+
+/* Committee */
+.committee-section { background:#FFFFFF; padding:5rem 3rem; }
+.committee-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:1.5rem; max-width:1100px; margin:0 auto; }
+.member-card { text-align:center; background:var(--white); border:1px solid var(--cream-dark); border-radius:10px; padding:1.75rem 1rem; transition:box-shadow 0.25s, transform 0.25s; }
+.member-card:hover { box-shadow:0 6px 20px rgba(45,106,79,0.15); transform:translateY(-4px); }
+.member-avatar { width:68px; height:68px; background:linear-gradient(135deg,var(--burgundy),var(--burgundy-light)); border-radius:50%; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; color:var(--gold); font-family:'Montserrat',sans-serif; font-weight:600; font-size:1.2rem; box-shadow:0 4px 12px rgba(45,106,79,0.3); }
+.member-photo { width:120px; height:120px; object-fit:cover; border-radius:100px; margin:0 auto 1rem; display:block; border:3px solid var(--gold); }
+.member-phone { margin-top:.5rem; font-size:.8rem; color:#666; font-weight:500; }
+.member-name { font-weight:700; font-size:0.85rem; color:var(--charcoal); margin-bottom:0.3rem; }
+.member-role { font-size:0.75rem; color:var(--burgundy); font-style:italic; }
+
+/* Reach out */
+.reach-out-section { background:var(--cream-dark); padding:5rem 3rem; }
+.reach-out-cards { display:grid; grid-template-columns:1fr 1fr; gap:2rem; max-width:900px; margin:0 auto; }
+.reach-card { background:var(--white); border-radius:12px; padding:2.5rem; text-align:center; border:1px solid var(--cream-dark); border-top:4px solid var(--burgundy); transition:transform 0.25s, box-shadow 0.25s; }
+.reach-card:hover { transform:translateY(-5px); box-shadow:0 10px 30px rgba(45,106,79,0.15); }
+.reach-card-icon { font-size:3rem; margin-bottom:1rem; animation:float 3s infinite; }
+.reach-card h3 { font-family:'Montserrat',sans-serif; font-weight:600; color:var(--burgundy); font-size:1.3rem; margin-bottom:0.75rem; }
+.reach-card p { color:var(--text-light); font-size:0.9rem; line-height:1.65; margin-bottom:1.5rem; }
+.btn-reach { display:inline-block; padding:0.85rem 2.5rem; border-radius:6px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:0.9rem; letter-spacing:0.08em; text-decoration:none; transition:all 0.2s; }
+.btn-prayer { background:var(--burgundy); color:var(--white); border:2px solid var(--burgundy); }
+.btn-prayer:hover { background:var(--burgundy-light); }
+.btn-query { background:transparent; color:var(--gold-dark); border:2px solid var(--gold); }
+.btn-query:hover { background:var(--gold); color:var(--burgundy-dark); }
+
+/* ── MOBILE ── */
+@media(max-width:768px) {
+  /* Hero: stack columns */
+  .home-hero-row { grid-template-columns:1fr; }
+  .hero-events { display:none; opacity:0; }
+  .hero-church-bg { opacity:0.75; background:rgba(0, 0, 0, 0.903);}
+  .hero-content { padding:3rem 1.5rem; }
+  .hero-title { font-size:2rem; }
+  .hero-desc { font-size:0.9rem; }
+
+  /* Sections padding */
+  .timings-section, .orgs-section, .committee-section, .reach-out-section { padding:3.5rem 1.2rem; }
+
+  /* Grids → 1 column on narrow, 2 column where it makes sense */
+  .timings-grid { grid-template-columns:1fr; }
+  .sunday-info-grid { grid-template-columns:1fr; }
+  .reach-out-cards { grid-template-columns:1fr; }
+
+  /* orgs: keep 2 cols on mobile (they're card-like) */
+  .orgs-grid { grid-template-columns:1fr 1fr; gap:1rem; }
+  .org-img-placeholder { height:140px; }
+
+  /* committee: 2 cols on tablet, 1 col on phone */
+  .committee-grid { grid-template-columns:repeat(2,1fr); gap:1rem; }
+  .member-photo { width:80px; height:80px; }
+
+  /* live banner wraps */
+  .live-prayer-banner { flex-wrap:wrap; padding:1rem 1.2rem; }
+
+  /* section title smaller */
+  .section-title { font-size:1.5rem; }
+}
+
+@media(max-width:480px) {
+  .orgs-grid { grid-template-columns:1fr; }
+  .committee-grid { grid-template-columns:1fr 1fr; }
+  .hero-title { font-size:1.7rem; }
+  .reach-card { padding:1.8rem 1.2rem; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<!-- HERO -->
+<section class="home-hero-row">
+  <div class="hero-left">
+    <div class="hero-church-bg-img">
+      <img src="{% static 'main/img/church2.png' %}" alt="Kavungumprayar Church">
+    </div>
+    <div class="hero-church-bg"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Welcome to Our Community</div>
+      <h1 class="hero-title">Where Faith<br>Meets <em>Fellowship</em></h1>
+      <p class="hero-desc">Gathered in the name of Christ, rooted in the ancient Marthoma tradition. A place of worship, community, and service since 1875.</p>
+      <div class="hero-btns">
+        <a href="/history/" class="btn-primary">Know More</a>
+        <a href="/events/" class="btn-outline">Upcoming Events</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-events">
+    <div class="sidebar-title">Upcoming Events</div>
+    {% for ev in upcoming_events %}
+    <div class="event-item">
+      <div class="event-date">{{ ev.date|date:"M d · l" }}</div>
+      <div class="event-name">{{ ev.name }}</div>
+      {% if ev.time %}<div class="event-time">{{ ev.time|time:"g:i A" }} · {{ ev.location }}</div>{% endif %}
+    </div>
+    {% empty %}
+    <div class="event-item"><div class="event-name" style="color:rgba(255,255,255,0.5)">No upcoming events</div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- TIMINGS -->
+<section class="timings-section">
+  <div class="section-header reveal">
+    <div class="section-label">Weekly Schedule</div>
+    <h2 class="section-title">Service Timings & Readings</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="timings-grid">
+    <div class="timing-card reveal">
+      <div class="timing-card-title">Sunday Services</div>
+      {% for s in sunday_services %}
+      <div class="timing-row"><span class="timing-label">{{ s.name }}</span><span class="timing-time">{{ s.time|time:"g:i A" }}</span></div>
+      {% empty %}
+      <div class="timing-row"><span class="timing-label">Sunday School</span><span class="timing-time">7:30 AM</span></div>
+      <div class="timing-row"><span class="timing-label">Holy Qurbana</span><span class="timing-time">9:30 AM</span></div>
+      <div class="timing-row"><span class="timing-label">Yuvajana Sakhyam</span><span class="timing-time">12:00 PM</span></div>
+      <div class="timing-row"><span class="timing-label">Choir Practice</span><span class="timing-time">4:00 PM</span></div>
+      {% endfor %}
+    </div>
+    <div class="timing-card reveal delay-2">
+      <div class="timing-card-title">Organizations</div>
+      {% for org in organizations %}
+      <div class="timing-row">
+          <span class="timing-label">{{ org.name }}</span>
+          <span class="timing-time">{{ org.timing }}</span>
+      </div>
+      {% empty %}
+      <div class="timing-row"><span class="timing-label">No organizations scheduled</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if sunday_readings %}
+  <div class="sunday-info-grid">
+    <div class="sunday-card reveal">
+      <div class="sunday-card-title">This Sunday's Reading Portions</div>
+      {% if sunday_readings.lesson1 %}<div class="timing-row"><span class="timing-label">Lesson 1</span><span class="timing-time">{{ sunday_readings.lesson1 }}</span></div>{% endif %}
+      {% if sunday_readings.lesson2 %}<div class="timing-row"><span class="timing-label">Lesson 2</span><span class="timing-time">{{ sunday_readings.lesson2 }}</span></div>{% endif %}
+      {% if sunday_readings.epistle %}<div class="timing-row"><span class="timing-label">Epistle</span><span class="timing-time">{{ sunday_readings.epistle }}</span></div>{% endif %}
+      {% if sunday_readings.gospel %}<div class="timing-row"><span class="timing-label">Gospel</span><span class="timing-time">{{ sunday_readings.gospel }}</span></div>{% endif %}
+    </div>
+    <div class="sunday-card reveal delay-1">
+      <div class="sunday-card-title">Selected Song Numbers</div>
+      {% if sunday_readings.hymn1 %}<div class="timing-row"><span class="timing-label">Opening Hymn 1</span><span class="timing-time">No. {{ sunday_readings.hymn1 }}</span></div>{% endif %}
+      {% if sunday_readings.hymn2 %}<div class="timing-row"><span class="timing-label">Opening Hymn 2</span><span class="timing-time">No. {{ sunday_readings.hymn2 }}</span></div>{% endif %}
+      {% if sunday_readings.offertory %}<div class="timing-row"><span class="timing-label">Offertory Song</span><span class="timing-time">No. {{ sunday_readings.offertory }}</span></div>{% endif %}
+      {% if sunday_readings.communion %}<div class="timing-row"><span class="timing-label">Communion Hymn</span><span class="timing-time">No. {{ sunday_readings.communion }}</span></div>{% endif %}
+    </div>
+  </div>
+  {% if sunday_readings.live_info %}
+  <div class="live-prayer-banner reveal">
+    <div class="live-dot"></div>
+    <div><strong style="color:var(--gold);">Live Prayer:</strong> <span style="margin-left:0.5rem">{{ sunday_readings.live_info }}</span></div>
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="sunday-info-grid">
+    <div class="sunday-card reveal">
+      <div class="sunday-card-title">This Sunday's Reading Portions</div>
+      <div class="timing-row"><span class="timing-label">Lesson 1</span><span class="timing-time">Luke 15:1–10</span></div>
+      <div class="timing-row"><span class="timing-label">Lesson 2</span><span class="timing-time">Romans 8:12–17</span></div>
+      <div class="timing-row"><span class="timing-label">Epistle</span><span class="timing-time">Isaiah 55:6–13</span></div>
+      <div class="timing-row"><span class="timing-label">Gospel</span><span class="timing-time">Psalm 23, 91</span></div>
+    </div>
+    <div class="sunday-card reveal delay-1">
+      <div class="sunday-card-title">Selected Song Numbers</div>
+      <div class="timing-row"><span class="timing-label">Opening Hymn 1</span><span class="timing-time">No. 12</span></div>
+      <div class="timing-row"><span class="timing-label">Opening Hymn 2</span><span class="timing-time">No. 145</span></div>
+      <div class="timing-row"><span class="timing-label">Offertory Song</span><span class="timing-time">No. 78</span></div>
+      <div class="timing-row"><span class="timing-label">Communion Hymn</span><span class="timing-time">No. 203</span></div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<!-- ORGANIZATIONS -->
+<section class="orgs-section">
+  <div class="section-header reveal">
+    <div class="section-label" style="color:var(--gold-light)">Our Community</div>
+    <h2 class="section-title" style="color:var(--gold)">Organizations</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="orgs-grid">
+    {% for org in orgs %}
+    <div class="org-card reveal delay-{{ forloop.counter0 }}">
+      {% if org.preview_image %}
+      <div class="org-img-placeholder">
+        <img src="{{ org.preview_image.url }}" alt="{{ org.name }}">
+      </div>
+      {% else %}
+      <div class="org-img-placeholder background:{{ org.bg_color }}">{{ org.icon }}</div>
+      {% endif %}
+      <div class="org-card-body">
+        <div class="org-name">{{ org.name }}</div>
+        <div class="org-desc">{{ org.description }}</div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="org-card reveal"><div class="org-img-placeholder" style="background:rgba(82,121,111,0.088)">✝️</div><div class="org-card-body"><div class="org-name">Sunday School</div><div class="org-desc">"Come to Jesus, bring every child to Jesus."</div></div></div>
+    <div class="org-card reveal delay-1"><div class="org-img-placeholder" style="background:rgba(212,160,23,0.12)">🎵</div><div class="org-card-body"><div class="org-name">Yuvajana Sakhyam</div><div class="org-desc">"Worship, Study, Witness and Service."</div></div></div>
+    <div class="org-card reveal delay-2"><div class="org-img-placeholder" style="background:rgba(45,106,79,0.15)">🙏</div><div class="org-card-body"><div class="org-name">Sevika Sangham</div><div class="org-desc">"Service and Evangelism, in the life and mission of the Mar Thoma Church."</div></div></div>
+    <div class="org-card reveal delay-3"><div class="org-img-placeholder" style="background:rgba(82,121,111,0.12)">👨‍👩‍👧‍👦</div><div class="org-card-body"><div class="org-name">Senior Citizens</div><div class="org-desc">"Brotherhood, community service and supporting the parish family."</div></div></div>
+    <div class="org-card reveal delay-4"><div class="org-img-placeholder" style="background:rgba(212,160,23,0.12)">🎵</div><div class="org-card-body"><div class="org-name">Choir</div><div class="org-desc">"Make a joyful noise to the Lord, all the earth."</div></div></div>
+    <div class="org-card reveal"><div class="org-img-placeholder" style="background:rgba(212,160,23,0.12)">🙏</div><div class="org-card-body"><div class="org-name">Prayer Group's</div><div class="org-desc">"United In Faith and Prayer."</div></div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- COMMITTEE -->
+<section class="committee-section">
+  <div class="section-header reveal">
+    <div class="section-label">Parish Leadership</div>
+    <h2 class="section-title">Church Committee</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="committee-grid">
+    {% for member in committee %}
+    <div class="member-card reveal">
+      {% if member.photo %}
+      <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="member-photo">
+      {% else %}
+      <div class="member-avatar">{{ member.initials }}</div>
+      {% endif %}
+      <div class="member-name">{{ member.name }}</div>
+      <div class="member-role">{{ member.role }}</div>
+      {% if member.phone %}<div class="member-phone">{{ member.phone }}</div>{% endif %}
+    </div>
+    {% empty %}
+    <div class="member-card reveal"><div class="member-avatar">VP</div><div class="member-name">V. Rev. Fr. Mathew Thomas</div><div class="member-role">Vicar</div></div>
+    <div class="member-card reveal delay-1"><div class="member-avatar">JK</div><div class="member-name">Mr. Joji Kurian</div><div class="member-role">Secretary</div></div>
+    <div class="member-card reveal delay-2"><div class="member-avatar">SJ</div><div class="member-name">Mr. Saji Joseph</div><div class="member-role">Treasurer</div></div>
+    <div class="member-card reveal delay-3"><div class="member-avatar">AM</div><div class="member-name">Mrs. Asha Mathew</div><div class="member-role">Joint Secretary</div></div>
+    <div class="member-card reveal delay-4"><div class="member-avatar">TG</div><div class="member-name">Mr. Thomas George</div><div class="member-role">Committee Member</div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- PRAYER & QUERIES BUTTONS -->
+<section class="reach-out-section">
+  <div class="section-header reveal">
+    <div class="section-label">Reach Out</div>
+    <h2 class="section-title">Connect With Us</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="reach-out-cards">
+    <div class="reach-card reveal">
+      <div class="reach-card-icon">🙏</div>
+      <h3>Prayer Request</h3>
+      <p>Share your prayer needs with our congregation. Every request is prayed for with love and devotion during our services.</p>
+      <a href="/prayerrequest/" class="btn-reach btn-prayer">Submit Prayer Request →</a>
+    </div>
+    <div class="reach-card reveal delay-2">
+      <div class="reach-card-icon">📩</div>
+      <h3>Queries</h3>
+      <p>Have questions about sacraments, membership, counselling, or any church matter? Reach out and we will respond promptly.</p>
+      <a href="/queries/" class="btn-reach btn-query">Send a Query →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+<link rel="icon" type="image/x-icon"
+          href="{% static 'main/img/churchpng.png' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}St. Thomas Marthoma Church{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --burgundy: #00311c;
+  --burgundy-dark: radial-gradient(circle, #1c4122, #1a3d20, #18391d, #16361b, #143219, #123017, #0f2d15, #0d2b13, #092a10, #06280d, #03270a, #002606);
+  --burgundy-light: #40916C;
+  --gold: #D4A017;
+  --gold-light: #F0C040;
+  --gold-dark: #A67C00;
+  --cream: #F4F9F4;
+  --cream-dark: #E0EFE5;
+  --charcoal: #1A2E22;
+  --teal: #52796F;
+  --teal-light: #84A98C;
+  --white: #FFFFFF;
+  --text-light: #607D6A;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Lato',sans-serif; background:#F4F9F4; color:var(--charcoal); overflow-x:hidden; }
+
+/* Loader */
+#loading-screen {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: #002606c0; z-index: 9999;
+  display: flex; justify-content: center; align-items: center;
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+#loading-video { width: 100%; height: 100%; object-fit: cover; }
+.fade-out { opacity: 0; visibility: hidden; }
+
+/* ── NAVBAR ── */
+#navbar {
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  background:var(--burgundy-dark);
+  border-bottom:2px solid var(--gold);
+  padding:0 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  height:64px;
+  transition:box-shadow 0.3s;
+}
+#navbar.scrolled { box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+.nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.nav-logo-icon { display:block; width:55px; height:55px; position:relative; }
+.nav-logo-text { font-family:'Montserrat',sans-serif; font-weight: 600; color:var(--gold); font-size:1.1rem; line-height:1.2; }
+.nav-logo-text span { display:block; font-size:0.65rem; color:var(--cream); letter-spacing:0.1em; font-family:'Lato',sans-serif; font-weight:300; }
+.nav-links { display:flex; gap:0; list-style:none; }
+.nav-links a {
+  font-family:'Montserrat',sans-serif; font-weight: 300; font-size:0.8rem; letter-spacing:0.12em;
+  color:var(--cream); text-decoration:none; padding:0 1rem;
+  height:64px; display:flex; align-items:center;
+  border-bottom:3px solid transparent;
+  transition:color 0.2s, border-color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* ── HAMBURGER BUTTON ── */
+.nav-hamburger {
+  display:none;
+  flex-direction:column; justify-content:center; align-items:center;
+  gap:5px; width:40px; height:40px; cursor:pointer;
+  background:none; border:none; padding:4px;
+}
+.nav-hamburger span {
+  display:block; width:24px; height:2px;
+  background:var(--cream); border-radius:2px;
+  transition:all 0.3s ease;
+}
+.nav-hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity:0; }
+.nav-hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+/* ── MOBILE MENU DRAWER ── */
+.mobile-menu {
+  display:none;
+  position:fixed; top:64px; left:0; right:0;
+  background:var(--burgundy-dark);
+  border-bottom:2px solid var(--gold);
+  z-index:999;
+  flex-direction:column;
+  padding:0.5rem 0 1rem;
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+.mobile-menu.open { display:flex; }
+.mobile-menu a {
+  font-family:'Montserrat',sans-serif; font-weight:400; font-size:0.95rem;
+  color:var(--cream); text-decoration:none;
+  padding:0.9rem 2rem;
+  border-left:3px solid transparent;
+  transition:background 0.2s, border-color 0.2s, color 0.2s;
+}
+.mobile-menu a:hover, .mobile-menu a.active {
+  background:rgba(255,255,255,0.06);
+  border-left-color:var(--gold);
+  color:var(--gold);
+}
+
+/* page layout */
+.page-wrap { padding-top:10px; min-height:100vh; }
+
+.hero-church-bg-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; width: 100%;
+}
+.hero-church-bg-img img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: center center; opacity: 0.5; display: block; 
+}
+
+/* buttons */
+.btn-primary {
+  background:var(--gold); color:var(--burgundy-dark);
+  padding:0.75rem 2rem; border:none; cursor:pointer;
+  font-family:'Montserrat',sans-serif; font-size:0.85rem; letter-spacing:0.1em;
+  border-radius:3px; transition:background 0.2s, transform 0.15s;
+  text-decoration:none; display:inline-block; font-weight:600;
+}
+.btn-primary:hover { background:var(--gold-light); transform:translateY(-2px); }
+.btn-outline {
+  background:transparent; color:var(--cream);
+  padding:0.75rem 2rem; border:1.5px solid rgba(255,255,255,0.4);
+  cursor:pointer; font-family:'Montserrat',sans-serif; font-size:0.85rem;
+  letter-spacing:0.1em; border-radius:3px;
+  transition:border-color 0.2s,color 0.2s;
+  text-decoration:none; display:inline-block; font-weight:600;
+}
+.btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+
+/* forms */
+.form-group { margin-bottom:1.5rem; }
+.form-group label { display:block; font-size:0.85rem; font-weight:700; color:var(--charcoal); margin-bottom:0.4rem; letter-spacing:0.05em; }
+.form-group input, .form-group select, .form-group textarea {
+  width:100%; padding:0.65rem 0.9rem;
+  border:1.5px solid #DDD; border-radius:6px;
+  font-family:'Lato',sans-serif; font-size:0.9rem;
+  color:var(--charcoal); background:#FAFAFA;
+  transition:border-color 0.25s, box-shadow 0.25s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline:none; border-color:var(--burgundy); background:var(--white);
+  box-shadow:0 0 0 3px rgba(45,106,79,0.12);
+}
+.form-group textarea { resize:vertical; min-height:130px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+/* alerts */
+.alert { padding:1rem 1.5rem; border-radius:6px; margin-bottom:1.5rem; font-size:0.9rem; border-left:4px solid; }
+.alert-success { background:#E8F5E9; color:#2E7D32; border-color:#4CAF50; }
+.alert-error { background:#FFEBEE; color:#C62828; border-color:#EF5350; }
+
+/* section styles */
+.section-header { text-align:center; margin-bottom:3rem; }
+.section-label { font-family:'Cinzel',serif; color:var(--gold-dark); font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; margin-bottom:0.5rem; }
+.section-title { font-family:'Cinzel',serif; color:var(--burgundy); font-size:2rem; }
+.section-divider { width:60px; height:2px; background:var(--gold); margin:1rem auto 0; }
+
+/* footer */
+footer {
+  background:var(--burgundy-dark); color:rgba(255,255,255,0.6);
+  padding:2.5rem 3rem; text-align:center; font-size:0.85rem;
+  border-top:2px solid var(--gold);
+}
+footer a { color:var(--gold); text-decoration:none; }
+footer a:hover { color:var(--gold-light); }
+
+/* animations */
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes glow { 0%,100%{box-shadow:0 0 10px rgba(212,160,23,0.3)} 50%{box-shadow:0 0 25px rgba(212,160,23,0.7)} }
+
+.animate-in { animation:fadeInUp 0.6s ease both; }
+.delay-1 { animation-delay:0.1s; }
+.delay-2 { animation-delay:0.2s; }
+.delay-3 { animation-delay:0.3s; }
+.delay-4 { animation-delay:0.4s; }
+
+.reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* page hero shared */
+.page-hero {
+  background:var(--burgundy);
+  padding:5rem 2rem 4rem;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.page-hero::before {
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(45deg, rgba(212,160,23,0.06) 0px, rgba(212,160,23,0.06) 1px, transparent 1px, transparent 40px);
+}
+.page-hero h1 { font-family:'Cinzel',serif; color:var(--gold); font-size:3rem; position:relative; animation:fadeInUp 0.8s ease; }
+.page-hero p { color:rgba(255,255,255,0.75); margin-top:1rem; font-size:1.05rem; position:relative; animation:fadeInUp 0.8s 0.2s ease both; }
+
+/* Alert container */
+.alert-container {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 10px; width: 320px;
+}
+.alert { padding: 12px 16px; border-radius: 8px; color: #fff; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease; }
+.alert-success { background: #28a745; }
+.alert-error { background: #dc3545; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+
+/* timing rows */
+.timing-row { display:flex; justify-content:space-between; padding:0.4rem 0; font-size:0.9rem; border-bottom:1px dashed var(--cream-dark); }
+.timing-row:last-child { border-bottom:none; }
+.timing-label { color:var(--charcoal); }
+.timing-time { color:var(--burgundy); font-weight:700; }
+
+/* live dot */
+.live-dot { width:12px; height:12px; background:#e74c3c; border-radius:50%; animation:pulse 1.5s infinite; flex-shrink:0; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  /* Show hamburger, hide desktop nav */
+  .nav-hamburger { display:flex; }
+  .nav-links { display:none; }
+
+  /* Navbar padding on mobile */
+  #navbar { padding:0 1rem; }
+
+  /* forms */
+  .form-row { grid-template-columns:1fr; }
+
+  /* page hero */
+  .page-hero { padding:4rem 1.2rem 3rem; }
+  .page-hero h1 { font-size:2rem; }
+  .page-hero p { font-size:0.9rem; }
+
+  /* footer wrapping */
+  footer { padding:2rem 1.2rem; font-size:0.8rem; word-break:break-word; }
+
+  /* alert container smaller on mobile */
+  .alert-container { width:calc(100vw - 2rem); right:1rem; top:74px; }
+}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+ <!-- Loading Screen -->
+    <div id="loading-screen">
+        <video id="loading-video" autoplay muted playsinline>
+            <source src="{% static 'main/videos/churchlogo.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const loadingScreen = document.getElementById("loading-screen");
+    const video = document.getElementById("loading-video");
+    const navEntries = performance.getEntriesByType("navigation");
+    const isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+    const navType = sessionStorage.getItem("navType");
+
+    if (!navType || navType === "video" || isReload) {
+        sessionStorage.removeItem("navType");
+        if (video) {
+            video.play();
+            video.addEventListener("ended", function () {
+                loadingScreen.classList.add("fade-out");
+            });
+        }
+    } else {
+        loadingScreen.innerHTML = `
+            <div style="text-align:center">
+                <h2 style="font-size:32px;font-weight:bold;background:linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold-dark)); -webkit-background-clip:text; color:transparent; animation:fadeInUp 0.8s ease both;">
+                    Processing...
+                </h2>
+            </div>
+        `;
+        setTimeout(() => { loadingScreen.classList.add("fade-out"); }, 1);
+    }
+
+    const logo = document.querySelector(".nav-logo");
+    if (logo) {
+        logo.addEventListener("click", function () {
+            sessionStorage.setItem("navType", "video");
+        });
+    }
+    document.querySelectorAll(".nav-links a").forEach(link => {
+        link.addEventListener("click", function () {
+            sessionStorage.setItem("navType", "processing");
+        });
+    });
+    document.querySelectorAll(".mobile-menu a").forEach(link => {
+        link.addEventListener("click", function () {
+            sessionStorage.setItem("navType", "processing");
+        });
+    });
+});
+</script>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="/" class="nav-logo">
+    <img src="{% static 'main/img/churchpng.png' %}" alt="Church Logo" class="nav-logo-icon">
+    <div class="nav-logo-text">St. Thomas<span>Marthoma Church, Kavungumprayar</span></div>
+  </a>
+  <!-- Desktop nav -->
+  <ul class="nav-links">
+    <li><a href="/" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
+    <li><a href="/history/" {% if request.resolver_match.url_name == 'history' %}class="active"{% endif %}>History</a></li>
+    <li><a href="/events/" {% if request.resolver_match.url_name == 'events' %}class="active"{% endif %}>Events</a></li>
+    <li><a href="/donate/" {% if request.resolver_match.url_name == 'donate' %}class="active"{% endif %}>Donate</a></li>
+  </ul>
+  <!-- Hamburger button -->
+  <button class="nav-hamburger" id="hamburgerBtn" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="/" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
+  <a href="/history/" {% if request.resolver_match.url_name == 'history' %}class="active"{% endif %}>History</a>
+  <a href="/events/" {% if request.resolver_match.url_name == 'events' %}class="active"{% endif %}>Events</a>
+  <a href="/donate/" {% if request.resolver_match.url_name == 'donate' %}class="active"{% endif %}>Donate</a>
+  <a href="/prayerrequest/">Prayer Request</a>
+  <a href="/queries/">Queries</a>
+</div>
+
+<div class="page-wrap">
+{% if messages %}
+<div class="alert-container">
+    {% for msg in messages %}
+        <div class="alert {% if msg.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+            {{ msg }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="page-wrap">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>St. Thomas Marthoma Church · Kavungumprayar · Founded 1875 · <a href="#">Niranam Maramon Diocese</a></p>
+  <p style="margin-top:0.5rem">☎ <a href="tel:04692750591">0469 2750591</a> &nbsp;·&nbsp; ✉ <a href="mailto:kavungumprayarstthomasmarthoma@gmail.com">kavungumprayarstthomasmarthoma@gmail.com</a></p>
+  <p style="margin-top:0.3rem">📍 Tiruvalla - Vennikulam - Ranni Rd, Kavungumprayar Puramattam, Kerala 689544</p>
+  <p style="margin-top:0.75rem; font-size:0.75rem; opacity:0.5">© 2026 St. Thomas Marthoma Church Kavungumprayar. All rights reserved. · Designed by <a href="https://www.linkedin.com/in/kenz-m-saju/">Kenz M Saju</a></p>
+</footer>
+
+<script>
+setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+    });
+}, 4000);
+</script>
+
+<script>
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Hamburger toggle
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburgerBtn.addEventListener('click', () => {
+  hamburgerBtn.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (!hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+    hamburgerBtn.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  }
+});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,120 @@
+{% extends 'main/base.html' %}
+{% block title %}History{% endblock %}
+{% block extra_head %}
+<style>
+.history-content { max-width:900px; margin:0 auto; padding:4rem 2rem; }
+.history-block { margin-bottom:4rem; }
+.history-block-label { font-family:'Cinzel',serif; color:var(--gold-dark); font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; }
+.history-block h2 { font-family:'Cinzel',serif; color:var(--burgundy); font-size:1.6rem; margin:0.5rem 0 1rem; }
+.history-block p { color:#555; line-height:1.85; margin-bottom:1rem; }
+.timeline { position:relative; padding-left:2.5rem; }
+.timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,var(--burgundy),var(--gold)); opacity:0.4; }
+.timeline-item { position:relative; margin-bottom:2.2rem; }
+.timeline-item::before { content:''; position:absolute; left:-26px; top:6px; width:14px; height:14px; background:var(--gold); border-radius:50%; border:3px solid var(--white); box-shadow:0 0 0 2px var(--burgundy); }
+.timeline-year { font-family:'Cinzel',serif; color:var(--burgundy); font-size:0.9rem; font-weight:700; }
+.timeline-desc { color:#555; font-size:0.92rem; line-height:1.65; margin-top:0.25rem; }
+.priests-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; margin-top:1.5rem; }
+.priest-card { background:var(--white); border:1px solid var(--cream-dark); border-top:4px solid var(--gold); padding:1.5rem; border-radius:8px; text-align:center; transition:transform 0.2s; }
+.priest-card:hover { transform:translateY(-4px); }
+.priest-avatar { width:72px; height:72px; background:linear-gradient(135deg,var(--burgundy),var(--burgundy-light)); border-radius:50%; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; color:var(--gold); font-family:'Cinzel',serif; font-size:1.4rem; overflow:hidden; }
+.priest-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.priest-name { font-family:'Montserrat',sans-serif; font-weight:300; color:var(--charcoal); font-size:0.95rem; margin-bottom:0.3rem; }
+.priest-tenure { color:var(--gold-dark); font-size:0.8rem; }
+
+/* WIP Banner */
+.wip-banner { background: #00311c; border-radius:14px; padding:2.5rem; margin-bottom:2.5rem; border:1px solid rgba(212,160,23,0.3); position:relative; overflow:hidden; animation:fadeInUp 0.7s ease; }
+.wip-banner::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(212,160,23,0.04) 0px,rgba(212,160,23,0.04) 1px,transparent 1px,transparent 30px); }
+.wip-shimmer { position:absolute; top:0; left:-100%; right:0; height:100%; background:linear-gradient(90deg,transparent,rgba(212,160,23,0.08),transparent); animation:shimmerSlide 3s infinite; }
+@keyframes shimmerSlide { to { left:100%; } }
+.wip-content { position:relative; z-index:1; text-align:center; }
+.wip-gear { font-size:3.5rem; display:inline-block; animation:spin 4s linear infinite; }
+.wip-gear2 { font-size:2rem; display:inline-block; animation:spin 3s linear infinite reverse; margin:0 0.5rem; vertical-align:middle; }
+.wip-title { font-family:'Cinzel',serif; color:var(--gold); font-size:1.8rem; margin:1rem 0 0.5rem; }
+.wip-sub { color:rgba(255,255,255,0.7); font-size:0.95rem; max-width:600px; margin:0 auto 1.5rem; }
+.wip-progress-track { background:rgba(255,255,255,0.1); border-radius:20px; height:12px; max-width:500px; margin:0 auto; overflow:hidden; }
+.wip-progress-bar { height:100%; border-radius:20px; background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-light)); width:73%; animation:progressGrow 2.5s ease-out both, progressPulse 2s 2.5s infinite; }
+@keyframes progressGrow { from{width:0%} to{width:73%} }
+@keyframes progressPulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+/* ── MOBILE ── */
+@media(max-width:768px) {
+  .history-content { padding:2.5rem 1.2rem; }
+  .history-block h2 { font-size:1.3rem; }
+  .history-block p { font-size:0.9rem; }
+
+  /* timeline: reduce indent on small screens */
+  .timeline { padding-left:1.8rem; }
+  .timeline-item::before { left:-20px; width:12px; height:12px; }
+
+  /* priests: 4 col → 2 col */
+  .priests-grid { grid-template-columns:1fr 1fr; gap:1rem; }
+
+  /* wip banner */
+  .wip-title { font-size:1.3rem; }
+  .wip-banner { padding:1.8rem 1.2rem; }
+}
+
+@media(max-width:480px) {
+  /* priests: 2 col stays, but smaller padding */
+  .priest-card { padding:1rem 0.75rem; }
+  .priest-name { font-size:0.82rem; }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <h1 style="font-family:'Montserrat',sans-serif; font-weight:700; font-size:2.6rem;">Our Heritage</h1>
+  <p>Over a century of faith, service, and unbroken apostolic tradition</p>
+</div>
+
+<div class="history-content">
+  <div class="history-block reveal">
+    <div class="history-block-label">Est. 1875</div>
+    <h2>Church History</h2>
+    <p>The historical tapestry of this parish began unfolding on the 1st of Karkidakam, Kollam Era 1051 (July 1876), a day steeped in spiritual significance as the community marked the feast day of St. Thomas the Apostle—the disciple of Christ who first brought the Gospel to India. On this auspicious occasion, the parish was formally established through the raising of the Holy Cross and the solemn celebration of the Holy Qurbana.</p>
+    <p>As the congregation flourished across the decades, the spiritual zeal of the early believers culminated in the laying of the sanctuary's foundation stone in the Kollam Era 1094 (1919). Through years of dedicated labor and prayerful endurance, the completed church building was formally consecrated on Saturday, May 21, 1949 (Edavam 8, 1124 M.E.), by the Late Lamented Most Reverend Dr. Juhanon Mar Thoma Metropolitan.</p>
+    <p>To meet the needs of a growing community at the turn of the millennium, the sanctuary underwent a significant expansion. On July 15, 2000, the re-consecration of the church building and the dedication of the newly constructed Madbaha (altar) were gloriously solemnized by the Late Lamented Valiya Metropolitan, Most Reverend Dr. Philipose Mar Chrysostom Mar Thoma Metropolitan.</p>
+    <p>Most recently, during the Parish Day convocation in July 2025, the parish crossed a monumental milestone by celebrating its Post-Centenary Jubilee, marking 150 years of an enduring legacy of faith. This historic Sesquicentennial was officially inaugurated by our shepherd, the Most Reverend Dr. Theodosius Mar Thoma Metropolitan, who also launched the jubilee initiatives and a dedicated development fund.</p>
+
+    <div class="timeline" style="margin-top:1.5rem">
+      <div class="donate-wrap">
+        <div class="wip-banner">
+          <div class="wip-shimmer"></div>
+          <div class="wip-content">
+            <div>
+              <span class="wip-gear2">⚙️</span>
+              <span class="wip-gear">🔧</span>
+              <span class="wip-gear2">⚙️</span>
+            </div>
+            <h2 class="wip-title" style="color:var(--gold)">Historical Timeline — Coming Soon</h2>
+            <p class="wip-sub"style="color:rgba(255,255,255,0.7)">We are integrating historical timelines for a comprehensive view of our church's journey.</p>
+            <div class="wip-progress-track">
+              <div class="wip-progress-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-block reveal">
+    <div class="history-block-label">Parish Shepherds</div>
+    <h2>Our Vicars Through the Years</h2>
+    <div class="priests-grid">
+    {% for priest in priests %}
+    <div class="priest-card">
+        {% if priest.photo %}
+        <div class="priest-avatar">
+            <img src="{{ priest.photo.url }}" alt="{{ priest.name }}">
+        </div>
+        {% else %}
+        <div class="priest-avatar">{{ priest.initials }}</div>
+        {% endif %}
+        <div class="priest-name">{{ priest.name }}</div>
+        <div class="priest-tenure">{{ priest.tenure }}</div>
+    </div>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

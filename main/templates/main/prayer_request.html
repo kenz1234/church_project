@@ -1,0 +1,79 @@
+{% extends 'main/base.html' %}
+{% block title %}Prayer Request{% endblock %}
+{% block extra_head %}
+<style>
+.prayer-wrap { max-width:720px; margin:3rem auto; padding:0 1.5rem 4rem; }
+.prayer-card { background:var(--white); border-radius:14px; padding:3rem; border:1px solid var(--cream-dark); border-top:5px solid var(--burgundy); box-shadow:0 8px 30px rgba(45,106,79,0.10); animation:fadeInUp 0.7s ease; }
+.prayer-icon { text-align:center; font-size:4rem; margin-bottom:1.5rem; animation:float 3s infinite; }
+.prayer-title { font-family:'Cinzel',serif; color:var(--burgundy); font-size:1.8rem; text-align:center; margin-bottom:0.5rem; }
+.prayer-subtitle { color:var(--text-light); text-align:center; font-size:0.95rem; line-height:1.65; margin-bottom:2rem; }
+.privacy-note { background:var(--cream); border-left:4px solid var(--gold); padding:1rem 1.2rem; border-radius:0 6px 6px 0; font-size:0.85rem; color:#555; margin-bottom:2rem; }
+.submit-btn { width:100%; padding:1rem; background:var(--burgundy); color:var(--white); border:none; border-radius:8px; font-family:'Montserrat',sans-serif; font-weight:600; font-size:1rem; letter-spacing:0.08em; cursor:pointer; transition:background 0.2s, transform 0.15s; }
+.submit-btn:hover { background:var(--burgundy-light); transform:translateY(-2px); }
+.contact-info { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:3rem; background:var(--white); border-radius:10px; padding:2rem; border:1px solid var(--cream-dark); border-left:4px solid var(--gold); }
+.contact-block h4 { font-family:'Montserrat',sans-serif; color:var(--gold-dark); font-size:0.85rem; margin-bottom:0.5rem; letter-spacing:0.1em; text-transform:uppercase; }
+.contact-block p { font-size:0.9rem; color:var(--charcoal); }
+.contact-block a { color:var(--burgundy); text-decoration:none; font-weight:700; word-break:break-word; }
+.contact-block a:hover { color:var(--burgundy-light); }
+
+/* ── MOBILE ── */
+@media(max-width:600px) {
+  .prayer-wrap { padding:0 1rem 3rem; margin:1.5rem auto; }
+  .prayer-card { padding:1.8rem 1.2rem; }
+  .prayer-title { font-size:1.4rem; }
+  .contact-info { grid-template-columns:1fr; padding:1.5rem 1.2rem; gap:1.2rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <h1 style="font-family:'Montserrat',sans-serif; font-weight: 700; font-size:2.6rem;">Prayer Requests</h1>
+  <p>Share your heart with us — we stand with you in prayer</p>
+</div>
+
+<div class="prayer-wrap">
+  <div class="prayer-card">
+    <div class="prayer-icon">🕊️</div>
+    <h2 class="prayer-title">Submit a Prayer Request</h2>
+    <p class="prayer-subtitle">Your prayer needs are sacred to us. Every request submitted here is prayed for by our vicar and congregation during our services. We stand with you in faith.</p>
+    <div class="privacy-note">🔒 <strong>Confidential</strong> — All prayer requests are handled with utmost care and reverence. Your personal information is never shared.</div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" name="name" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" name="phone" placeholder="+91 XXXXX XXXXX">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label>Your Prayer Request *</label>
+        <textarea name="message" placeholder="Share your prayer request, need, or intercession. All requests are prayed for during our services..." required></textarea>
+      </div>
+      <button type="submit" class="submit-btn">🙏 Submit Prayer Request</button>
+    </form>
+  </div>
+
+  <div class="contact-info reveal">
+    <div class="contact-block">
+      <h4>📧 Email Us</h4>
+      <p><a href="mailto:kavungumprayarstthomasmarthoma@gmail.com">kavungumprayarstthomasmarthoma@gmail.com</a></p>
+      <p style="margin-top:0.3rem;font-size:0.82rem;color:#888">For urgent matters</p>
+    </div>
+    <div class="contact-block">
+      <h4>☎ Call the Church</h4>
+      <p><a href="tel:04692750591">0469 2750591</a></p>
+      <p style="margin-top:0.3rem;font-size:0.82rem;color:#888">All days, 9 AM – 5 PM</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

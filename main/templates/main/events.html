@@ -1,0 +1,89 @@
+{% extends 'main/base.html' %}
+{% block title %}Events{% endblock %}
+{% block extra_head %}
+<style>
+.events-wrap { max-width:1100px; margin:0 auto; padding:3rem 2rem 5rem; }
+.events-list { display:grid; gap:1.5rem; margin-bottom:3rem; }
+.event-card { background:var(--white); border:1px solid var(--cream-dark); border-radius:10px; padding:1.5rem 2rem; display:grid; grid-template-columns:80px 1fr auto; gap:1.5rem; align-items:center; transition:box-shadow 0.25s, transform 0.2s; }
+.event-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.08); transform:translateY(-2px); }
+.event-date-box { background:var(--teal); color:var(--white); border-radius:8px; padding:0.75rem 0.5rem; text-align:center; font-family:'Montserrat',sans-serif; font-weight:500; }
+.event-date-day { font-size:1.8rem; line-height:1; }
+.event-date-month { font-size:0.7rem; letter-spacing:0.1em; opacity:0.85; }
+.event-card-title { font-family:'Montserrat',sans-serif; font-weight:400; color:var(--charcoal); font-size:1.1rem; margin-bottom:0.3rem; }
+.event-card-detail { font-family:'Montserrat',sans-serif; font-weight:300; color:#666; font-size:0.85rem; }
+.event-card-badge { background:var(--cream-dark); color:var(--burgundy); padding:0.3rem 0.75rem; border-radius:4px; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+
+.section-h2 { font-family:'Cinzel',serif; color:var(--burgundy); font-size:1.4rem; margin-bottom:1.5rem; border-bottom:2px solid var(--gold); padding-bottom:0.5rem; display:block; }
+
+.gallery-preview-link { text-decoration:none; display:block; }
+.gallery-preview { position:relative; max-width:700px; margin:0 auto; border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.15); }
+.gallery-preview img { width:100%; height:400px; object-fit:cover; display:block; transition:transform 0.3s ease; }
+.gallery-preview:hover img { transform:scale(1.03); }
+.gallery-overlay { position:absolute; left:0; right:0; bottom:0; padding:1rem; color:#fff; font-size:1rem; font-weight:600; background:linear-gradient(transparent, rgba(0,0,0,0.75)); }
+
+.gallery-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:15px; margin-top:1rem; }
+.gallery-card { position:relative; height:220px; border-radius:12px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.15); }
+.gallery-card img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ── MOBILE ── */
+@media(max-width:768px) {
+  .events-wrap { padding:2rem 1rem 4rem; }
+  /* event card: hide badge at mid-size */
+  .event-card { grid-template-columns:70px 1fr auto; gap:1rem; padding:1.2rem 1rem; }
+}
+
+@media(max-width:600px) {
+  /* event card: drop badge column entirely */
+  .event-card { grid-template-columns:60px 1fr; gap:0.75rem; padding:1rem; }
+  .event-card-badge { display:none; }
+  .event-date-day { font-size:1.4rem; }
+
+  /* gallery: 2 cols on phone */
+  .gallery-grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .gallery-card { height:150px; }
+
+  .gallery-preview img { height:220px; }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <h1 style="font-family:'Montserrat',sans-serif; font-weight: 700; font-size:2.6rem;">Events & Gallery</h1>
+  <p>Stay connected with parish life — upcoming celebrations and cherished memories</p>
+</div>
+<div class="events-wrap">
+  {% if upcoming %}
+  <h2 class="section-h2 reveal">📅 Upcoming Events</h2>
+  <div class="events-list">
+    {% for ev in upcoming %}
+    <div class="event-card reveal">
+      <div class="event-date-box">
+        <div class="event-date-day">{{ ev.date|date:"d" }}</div>
+        <div class="event-date-month">{{ ev.date|date:"M" }}</div>
+      </div>
+      <div>
+        <div class="event-card-title">{{ ev.name }}</div>
+        <div class="event-card-detail">{% if ev.time %}{{ ev.time|time:"g:i A" }} · {% endif %}{{ ev.location }}{% if ev.description %} — {{ ev.description|truncatechars:80 }}{% endif %}</div>
+      </div>
+      <div class="event-card-badge">{{ ev.category }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:3rem;color:#888">No upcoming events at this time. Check back soon!</div>
+  {% endif %}
+
+<div class="reveal">
+    <h2 class="section-h2">🖼 Event Gallery</h2>
+    <div class="gallery-grid">
+        {% for photo in gallery %}
+        <a href="{{ photo.redirect_url }}" target="_blank" class="gallery-preview-link">
+            <div class="gallery-card">
+                <img src="{{ photo.image.url }}" alt="{{ photo.caption }}">
+                <div class="gallery-overlay">{{ photo.caption }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

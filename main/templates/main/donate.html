@@ -1,0 +1,93 @@
+{% extends 'main/base.html' %}
+{% block title %}Donate{% endblock %}
+{% block extra_head %}
+<style>
+.donate-wrap { max-width:960px; margin:0 auto; padding:3rem 1.5rem 5rem; }
+
+.wip-banner { background:#00311c; border-radius:14px; padding:2.5rem; margin-bottom:2.5rem; border:1px solid rgba(212,160,23,0.3); position:relative; overflow:hidden; animation:fadeInUp 0.7s ease; }
+.wip-banner::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(212,160,23,0.04) 0px,rgba(212,160,23,0.04) 1px,transparent 1px,transparent 30px); }
+.wip-shimmer { position:absolute; top:0; left:-100%; right:0; height:100%; background:linear-gradient(90deg,transparent,rgba(212,160,23,0.08),transparent); animation:shimmerSlide 3s infinite; }
+@keyframes shimmerSlide { to { left:100%; } }
+.wip-content { position:relative; z-index:1; text-align:center; }
+.wip-gear { font-size:3.5rem; display:inline-block; animation:spin 4s linear infinite; }
+.wip-gear2 { font-size:2rem; display:inline-block; animation:spin 3s linear infinite reverse; margin:0 0.5rem; vertical-align:middle; }
+.wip-title { font-family:'Cinzel',serif; color:var(--gold); font-size:1.8rem; margin:1rem 0 0.5rem; }
+.wip-sub { color:rgba(255,255,255,0.7); font-size:0.95rem; max-width:600px; margin:0 auto 1.5rem; }
+.wip-progress-track { background:rgba(255,255,255,0.1); border-radius:20px; height:12px; max-width:500px; margin:0 auto; overflow:hidden; }
+.wip-progress-bar { height:100%; border-radius:20px; background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-light)); width:73%; animation:progressGrow 2.5s ease-out both, progressPulse 2s 2.5s infinite; }
+@keyframes progressGrow { from{width:0%} to{width:73%} }
+@keyframes progressPulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+.donate-card { background:var(--white); border-radius:14px; padding:2.5rem; border:1px solid var(--cream-dark); border-top:5px solid var(--burgundy); box-shadow:0 6px 24px rgba(45,106,79,0.08); margin-bottom:2rem; animation:fadeInUp 0.7s 0.3s ease both; }
+.donate-section-title { font-family:'Cinzel',serif; color:var(--burgundy); font-size:1.2rem; margin-bottom:1.5rem; padding-bottom:0.75rem; border-bottom:1px solid var(--cream-dark); }
+
+.amount-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+.amount-btn { padding:1.1rem 0.5rem; border:2px solid var(--cream-dark); border-radius:10px; background:var(--white); cursor:pointer; font-family:'Cinzel',serif; font-size:1.1rem; color:var(--charcoal); transition:all 0.25s; text-align:center; }
+.amount-btn small { display:block; font-size:0.65rem; margin-top:0.25rem; font-family:'Lato',sans-serif; font-style:italic; }
+.amount-btn:hover, .amount-btn.selected { border-color:var(--burgundy); color:var(--gold); background:var(--burgundy); }
+
+.gateway-options { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:0.5rem; }
+.gateway-btn { padding:0.75rem 1.5rem; border:2px solid var(--cream-dark); border-radius:8px; background:var(--white); cursor:pointer; font-weight:700; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:0.5rem; }
+.gateway-btn.selected, .gateway-btn:hover { border-color:var(--burgundy); background:var(--cream-dark); }
+
+.pay-btn { width:100%; padding:1.1rem; background:linear-gradient(135deg,var(--burgundy),var(--burgundy-light)); color:var(--white); border:none; border-radius:10px; font-family:'Cinzel',serif; font-size:1rem; cursor:pointer; transition:all 0.25s; display:flex; align-items:center; justify-content:center; gap:0.5rem; box-shadow:0 4px 15px rgba(45,106,79,0.3); }
+.pay-btn:hover { transform:translateY(-3px); box-shadow:0 8px 25px rgba(45,106,79,0.4); }
+
+.secure-badges { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem; }
+.secure-badge { display:flex; align-items:center; gap:0.35rem; font-size:0.78rem; color:#666; background:var(--cream); padding:0.4rem 0.8rem; border-radius:20px; }
+
+.bank-card { background:var(--white); border-radius:10px; padding:2rem; border:1px solid var(--cream-dark); border-left:5px solid var(--gold); animation:fadeInUp 0.7s 0.5s ease both; }
+
+/* ── MOBILE ── */
+@media(max-width:600px) {
+  .donate-wrap { padding:2rem 1rem 4rem; }
+  .amount-grid { grid-template-columns:1fr 1fr; }
+  .wip-title { font-size:1.3rem; }
+  .wip-banner { padding:1.8rem 1.2rem; }
+  .gateway-options { gap:0.5rem; }
+  .gateway-btn { padding:0.6rem 1rem; font-size:0.82rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <h1 style="font-family:'Montserrat',sans-serif; font-weight: 700; font-size:2.6rem;">Support Our Mission</h1>
+  <p>Your generosity sustains worship, education, community service, and the care of God's house</p>
+</div>
+
+<div class="donate-wrap">
+  <div class="wip-banner">
+    <div class="wip-shimmer"></div>
+    <div class="wip-content">
+      <div>
+        <span class="wip-gear2">⚙️</span>
+        <span class="wip-gear">🔧</span>
+        <span class="wip-gear2">⚙️</span>
+      </div>
+      <h2 class="wip-title">Online Payment Gateway — Coming Soon</h2>
+      <p class="wip-sub">We are integrating online payment gateways for a seamless donation experience.</p>
+      <div class="wip-progress-track">
+        <div class="wip-progress-bar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectAmount(btn) {
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('customAmount').value = '';
+}
+function clearAmountSel() {
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+}
+function selGw(btn) {
+  document.querySelectorAll('.gateway-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+</script>
+{% endblock %}
