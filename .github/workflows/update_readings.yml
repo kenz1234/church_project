@@ -37,6 +37,12 @@ jobs:
           echo "===== readings.json ====="
           cat main/readings.json
 
+      - name: Upload debug HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-html
+          path: debug.html
+
       - name: Check repository files
         run: |
           ls -R
@@ -53,13 +59,4 @@ jobs:
           else
             git commit -m "Auto update Sunday readings"
             git push
-          fi
-
-      - name: Upload debug HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-html
-          path: debug.html
-
-      - name: Show JSON
-        run: cat main/readings.json          
+          fi    
