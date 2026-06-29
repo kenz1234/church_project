@@ -15,55 +15,55 @@ def get_next_sunday():
     return today + timedelta(days=days)
 
 def scrape_lectionary():
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
     response = requests.get(URL, headers=headers, timeout=30)
     response.raise_for_status()
+
     soup = BeautifulSoup(response.text, "html.parser")
 
     sunday = get_next_sunday()
 
-    # Website format is like "05 Jul" or "5 Jul"
-    # We try both zero-padded and non-padded
-    date_str_padded = sunday.strftime("%d %b")       # "05 Jul"
-    date_str_plain  = f"{sunday.day} {sunday.strftime('%b')}"  # "5 Jul"
+    date1 = sunday.strftime("%d %b")      # 05 Jul
+    date2 = f"{sunday.day} {sunday.strftime('%b')}"   # 5 Jul
 
-    # Find all list items on the page
-    for li in soup.find_all("li"):
-        text = li.get_text(" ", strip=True)
+    lines = [
+        x.strip()
+        for x in soup.get_text("\n").split("\n")
+        if x.strip()
+    ]
 
-        # Check if this list item starts with our date
-        if text.startswith(date_str_padded) or text.startswith(date_str_plain):
-            lesson1  = ""
-            lesson2  = ""
-            epistle  = ""
-            gospel   = ""
+    for i, line in enumerate(lines):
+        if line in (date1, date2):
 
-            # Get all the text lines inside this block
-            lines = [x.strip() for x in li.get_text("\n").split("\n") if x.strip()]
+            lesson1 = lesson2 = epistle = gospel = ""
 
-            for i, line in enumerate(lines):
-                if line == "Lessons" and i + 2 < len(lines):
-                    lesson1 = lines[i + 1]
-                    lesson2 = lines[i + 2]
-                if line == "Epistle Gospel" and i + 2 < len(lines):
-                    epistle = lines[i + 1]
-                    gospel  = lines[i + 2]
+            for j in range(i, min(i + 20, len(lines))):
 
-            return {
-                "date":    sunday.strftime("%Y-%m-%d"),
-                "lesson1": lesson1,
-                "lesson2": lesson2,
-                "epistle": epistle,
-                "gospel":  gospel,
-            }
+                if lines[j] == "Lessons":
+                    lesson1 = lines[j + 1]
+                    lesson2 = lines[j + 2]
 
-    # Not found
+                elif lines[j] == "Epistle Gospel":
+                    epistle = lines[j + 1]
+                    gospel = lines[j + 2]
+
+                    return {
+                        "date": sunday.strftime("%Y-%m-%d"),
+                        "lesson1": lesson1,
+                        "lesson2": lesson2,
+                        "epistle": epistle,
+                        "gospel": gospel,
+                    }
+
     return {
-        "date":    sunday.strftime("%Y-%m-%d"),
+        "date": sunday.strftime("%Y-%m-%d"),
         "lesson1": "",
         "lesson2": "",
         "epistle": "",
-        "gospel":  "",
+        "gospel": "",
     }
 
 def save_readings():
