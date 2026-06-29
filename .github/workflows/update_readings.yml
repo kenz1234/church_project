@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debug-html
-          path: debug.html
+          path: main/debug.html
 
       - name: Check repository files
         run: |
