@@ -1,45 +1,46 @@
-name: Update Lectionary
+name: Update Sunday Readings
 
 on:
-  schedule:
-    # Every Sunday at 12:00 AM UTC (5:30 AM IST)
-    - cron: "0 0 * * 0"
   workflow_dispatch:
+
+  schedule:
+    - cron: '0 */6 * * *'
 
 permissions:
   contents: write
 
 jobs:
-  update:
+  scrape:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4
+          pip install requests beautifulsoup4 lxml
 
       - name: Run scraper
-        run: python scraper.py
-
-      - name: Commit and push changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python main/scraper.py
 
-          git add readings.json
+      - name: Commit updated readings
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add main/readings.json
 
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No changes"
           else
-            git commit -m "Update lectionary readings"
+            git commit -m "Auto update Sunday readings"
             git push
           fi
