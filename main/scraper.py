@@ -34,8 +34,12 @@ def scrape_lectionary():
     print("Final URL:", response.url)
     print("Downloaded:", len(response.text), "characters")
 
-    with open("debug.html", "w", encoding="utf-8") as f:
+    DEBUG_PATH = os.path.join(BASE_DIR, "debug.html")
+
+    with open(DEBUG_PATH, "w", encoding="utf-8") as f:
         f.write(response.text)
+
+    print(f"Debug HTML saved to: {DEBUG_PATH}")
 
     soup = BeautifulSoup(response.text, "lxml")
 
