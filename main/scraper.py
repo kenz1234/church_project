@@ -4,7 +4,7 @@ from datetime import date, timedelta
 import json
 
 URL = "https://marthoma.in/lectionary/"
-JSON_PATH = "/home/kavungumprayarstthomasmarthoma/church_project_src/main/readings.json"
+
 
 def get_next_sunday():
     today = date.today()
