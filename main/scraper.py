@@ -1,10 +1,13 @@
+import os
+import json
 import requests
 from bs4 import BeautifulSoup
 from datetime import date, timedelta
-import json
 
 URL = "https://marthoma.in/lectionary/"
-JSON_PATH = "readings.json"
+
+BASE_DIR = os.path.dirname(__file__)
+JSON_PATH = os.path.join(BASE_DIR, "readings.json")
 
 
 def get_next_sunday():
@@ -14,64 +17,90 @@ def get_next_sunday():
         days = 7
     return today + timedelta(days=days)
 
+
 def scrape_lectionary():
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/137.0.0.0 Safari/537.36"
+        )
     }
 
     response = requests.get(URL, headers=headers, timeout=30)
     response.raise_for_status()
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    print("Status Code:", response.status_code)
+    print("Final URL:", response.url)
+    print("Downloaded:", len(response.text), "characters")
+
+    with open("debug.html", "w", encoding="utf-8") as f:
+        f.write(response.text)
+
+    soup = BeautifulSoup(response.text, "lxml")
 
     sunday = get_next_sunday()
 
-    date1 = sunday.strftime("%d %b")      # 05 Jul
-    date2 = f"{sunday.day} {sunday.strftime('%b')}"   # 5 Jul
+    date_padded = sunday.strftime("%d %b")
+    date_plain = f"{sunday.day} {sunday.strftime('%b')}"
+
+    print("Looking for:", date_padded, "or", date_plain)
 
     lines = [
-        x.strip()
-        for x in soup.get_text("\n").split("\n")
-        if x.strip()
+        line.strip()
+        for line in soup.get_text("\n").split("\n")
+        if line.strip()
     ]
 
-    for i, line in enumerate(lines):
-        if line in (date1, date2):
+    lesson1 = lesson2 = epistle = gospel = ""
 
-            lesson1 = lesson2 = epistle = gospel = ""
+    for i, line in enumerate(lines):
+
+        if line == date_padded or line == date_plain:
+
+            print("Found date!")
 
             for j in range(i, min(i + 20, len(lines))):
 
                 if lines[j] == "Lessons":
-                    lesson1 = lines[j + 1]
-                    lesson2 = lines[j + 2]
+                    if j + 2 < len(lines):
+                        lesson1 = lines[j + 1]
+                        lesson2 = lines[j + 2]
 
                 elif lines[j] == "Epistle Gospel":
-                    epistle = lines[j + 1]
-                    gospel = lines[j + 2]
+                    if j + 2 < len(lines):
+                        epistle = lines[j + 1]
+                        gospel = lines[j + 2]
+                        break
 
-                    return {
-                        "date": sunday.strftime("%Y-%m-%d"),
-                        "lesson1": lesson1,
-                        "lesson2": lesson2,
-                        "epistle": epistle,
-                        "gospel": gospel,
-                    }
+            break
 
-    return {
+    data = {
         "date": sunday.strftime("%Y-%m-%d"),
-        "lesson1": "",
-        "lesson2": "",
-        "epistle": "",
-        "gospel": "",
+        "lesson1": lesson1,
+        "lesson2": lesson2,
+        "epistle": epistle,
+        "gospel": gospel,
     }
 
+    print(json.dumps(data, indent=4))
+
+    return data
+
+
 def save_readings():
-    data = scrape_lectionary()
-    with open(JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-    print(f"✅ Done! readings.json updated")
-    print(json.dumps(data, indent=2, ensure_ascii=False))
+    try:
+        data = scrape_lectionary()
+
+        with open(JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+        print(f"Saved to {JSON_PATH}")
+
+    except Exception as e:
+        print("ERROR:", e)
+        raise
+
 
 if __name__ == "__main__":
     save_readings()
