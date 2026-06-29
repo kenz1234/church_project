@@ -34,8 +34,8 @@ def scrape_lectionary():
     print("Final URL:", response.url)
     print("Downloaded:", len(response.text), "characters")
 
+    # Save HTML for debugging
     DEBUG_PATH = os.path.join(BASE_DIR, "debug.html")
-
     with open(DEBUG_PATH, "w", encoding="utf-8") as f:
         f.write(response.text)
 
@@ -45,10 +45,10 @@ def scrape_lectionary():
 
     sunday = get_next_sunday()
 
-    date_padded = sunday.strftime("%d %b")
-    date_plain = f"{sunday.day} {sunday.strftime('%b')}"
+    date_day = sunday.strftime("%d")      # 05
+    date_month = sunday.strftime("%b")    # Jul
 
-    print("Looking for:", date_padded, "or", date_plain)
+    print("Looking for:", date_day, date_month)
 
     lines = [
         line.strip()
@@ -56,26 +56,30 @@ def scrape_lectionary():
         if line.strip()
     ]
 
-    lesson1 = lesson2 = epistle = gospel = ""
+    lesson1 = ""
+    lesson2 = ""
+    epistle = ""
+    gospel = ""
 
-    for i, line in enumerate(lines):
+    for i in range(len(lines) - 1):
 
-        if line == date_padded or line == date_plain:
+        # Website stores the date as:
+        # 05
+        # Jul
+        if lines[i] == date_day and lines[i + 1] == date_month:
 
             print("Found date!")
 
-            for j in range(i, min(i + 20, len(lines))):
+            for j in range(i, min(i + 30, len(lines))):
 
-                if lines[j] == "Lessons":
-                    if j + 2 < len(lines):
-                        lesson1 = lines[j + 1]
-                        lesson2 = lines[j + 2]
+                if lines[j] == "Lessons" and j + 2 < len(lines):
+                    lesson1 = lines[j + 1]
+                    lesson2 = lines[j + 2]
 
-                elif lines[j] == "Epistle Gospel":
-                    if j + 2 < len(lines):
-                        epistle = lines[j + 1]
-                        gospel = lines[j + 2]
-                        break
+                elif lines[j] == "Epistle Gospel" and j + 2 < len(lines):
+                    epistle = lines[j + 1]
+                    gospel = lines[j + 2]
+                    break
 
             break
 
@@ -87,7 +91,7 @@ def scrape_lectionary():
         "gospel": gospel,
     }
 
-    print(json.dumps(data, indent=4))
+    print(json.dumps(data, indent=4, ensure_ascii=False))
 
     return data
 
