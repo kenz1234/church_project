@@ -8,6 +8,31 @@ URL = "https://marthoma.in/lectionary/"
 
 BASE_DIR = os.path.dirname(__file__)
 JSON_PATH = os.path.join(BASE_DIR, "readings.json")
+ML_JSON_PATH = os.path.join(BASE_DIR, "readings_ml.json")
+
+BOOKS_ML = {
+    "Genesis": "ഉല്പത്തി",
+    "Exodus": "പുറപ്പാട്",
+    "Leviticus": "ലേവ്യർ",
+    "Numbers": "സംഖ്യാപുസ്തകം",
+    "Deuteronomy": "ആവർത്തനം",
+    "Joshua": "യോശുവ",
+    "Judges": "ന്യായാധിപന്മാർ",
+    "Ruth": "രൂത്ത്",
+    "1Chr": "1 ദിനവൃത്താന്തം",
+    "2Chr": "2 ദിനവൃത്താന്തം",
+    "1Tim": "1 തിമോത്തി",
+    "2Tim": "2 തിമോത്തി",
+    "1Cor": "1 കൊരിന്ത്യർ",
+    "2Cor": "2 കൊരിന്ത്യർ",
+    "Luke": "ലൂക്കാ",
+    "John": "യോഹന്നാൻ",
+    "Matt": "മത്തായി",
+    "Mark": "മർക്കോസ്",
+    "Acts": "അപ്പൊസ്തലപ്രവൃത്തികൾ",
+    "Rom": "റോമർ",
+    "Rev": "വെളിപ്പാട്"
+}
 
 
 def get_next_sunday():
@@ -16,6 +41,13 @@ def get_next_sunday():
     if days == 0:
         days = 7
     return today + timedelta(days=days)
+
+
+def to_malayalam(ref):
+    for en, ml in BOOKS_ML.items():
+        if ref.startswith(en):
+            return ref.replace(en, ml, 1)
+    return ref
 
 
 def scrape_lectionary():
@@ -105,9 +137,23 @@ def save_readings():
         data = scrape_lectionary()
 
         with open(JSON_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
         print(f"Saved to {JSON_PATH}")
+
+# Create Malayalam version
+        data_ml = {
+            "date": data["date"],
+            "lesson1": to_malayalam(data["lesson1"]),
+            "lesson2": to_malayalam(data["lesson2"]),
+            "epistle": to_malayalam(data["epistle"]),
+            "gospel": to_malayalam(data["gospel"]),
+        }
+
+        with open(ML_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(data_ml, f, indent=4, ensure_ascii=False)
+
+        print(f"Saved to {ML_JSON_PATH}")
 
     except Exception as e:
         print("ERROR:", e)
