@@ -133,6 +133,7 @@ def scrape_lectionary():
 
 
 def save_readings():
+    print("=== NEW SCRAPER VERSION ===")
     try:
         data = scrape_lectionary()
 
