@@ -37,6 +37,15 @@ jobs:
           echo "===== readings.json ====="
           cat main/readings.json
 
+          echo ""
+          echo "===== readings_ml.json ====="
+
+          if [ -f main/readings_ml.json ]; then
+          cat main/readings_ml.json
+          else
+          echo "readings_ml.json NOT FOUND!"
+          fi
+
       - name: Upload debug HTML
         uses: actions/upload-artifact@v4
         with:
@@ -45,7 +54,7 @@ jobs:
 
       - name: Check repository files
         run: |
-          ls -R
+          ls -l main
 
       - name: Commit and push changes
         run: |
