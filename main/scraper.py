@@ -56,6 +56,10 @@ def scrape_lectionary():
         if line.strip()
     ]
 
+    print("First 300 lines:")
+    for idx, line in enumerate(lines[:300]):
+        print(idx, repr(line))
+
     lesson1 = ""
     lesson2 = ""
     epistle = ""
