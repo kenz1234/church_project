@@ -136,12 +136,13 @@ def save_readings():
     try:
         data = scrape_lectionary()
 
+        # Save English JSON
         with open(JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+            json.dump(data, f, indent=4, ensure_ascii=False)
 
         print(f"Saved to {JSON_PATH}")
 
-# Create Malayalam version
+        # Create Malayalam JSON
         data_ml = {
             "date": data["date"],
             "lesson1": to_malayalam(data["lesson1"]),
@@ -150,8 +151,9 @@ def save_readings():
             "gospel": to_malayalam(data["gospel"]),
         }
 
+        # Save Malayalam JSON
         with open(ML_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(data_ml, f, indent=4, ensure_ascii=False)
+            json.dump(data_ml, f, indent=4, ensure_ascii=False)
 
         print(f"Saved to {ML_JSON_PATH}")
 
