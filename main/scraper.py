@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import date, timedelta
 
-URL = "https://marthoma.in/lectionary/"
+URL = "https://marthoma.in/prayer/"
 
 BASE_DIR = os.path.dirname(__file__)
 JSON_PATH = os.path.join(BASE_DIR, "readings.json")
