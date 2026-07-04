@@ -404,8 +404,8 @@ def scrape_lectionary():
 
     sunday = get_next_sunday()
 
-    date_day = sunday.strftime("%d")      # 05
-    date_month = sunday.strftime("%b")    # Jul
+    date_day = sunday.strftime("%d")      
+    date_month = sunday.strftime("%b")    
 
     print("Looking for:", date_day, date_month)
 
@@ -416,7 +416,7 @@ def scrape_lectionary():
     ]
 
     print("First 300 lines:")
-    for idx, line in enumerate(lines[:300]):
+    for idx, line in enumerate(lines[:1000]):
         print(idx, repr(line))
 
     lesson1 = ""
