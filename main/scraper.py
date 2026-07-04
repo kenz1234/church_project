@@ -439,8 +439,8 @@ def scrape_lectionary():
     soup = BeautifulSoup(response.text, "lxml")
 
     sunday = get_next_sunday()
-    date_day = sunday.strftime("%d")           # e.g. "05"
-    date_month_upper = sunday.strftime("%b").upper()  # e.g. "JUL"
+    date_day = sunday.strftime("%d")          
+    date_month_upper = sunday.strftime("%b").upper()  
 
     print("Looking for:", date_day, date_month_upper)
 
