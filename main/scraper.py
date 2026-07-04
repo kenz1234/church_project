@@ -497,7 +497,13 @@ def scrape_lectionary():
                 if len(refs) >= 2:
                     gospel = refs[1]
 
-            
+            elif line_j == "Evening Reading" and j + 1 < len(lines):
+                refs = extract_refs(lines[j + 1])
+                if len(refs) >= 1:
+                    evening1 = refs[0]
+                if len(refs) >= 2:
+                    evening2 = refs[1]
+                break  # Evening Reading is always the last block for an entry
 
         break
 
