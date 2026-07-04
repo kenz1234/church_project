@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import requests
 from bs4 import BeautifulSoup
@@ -266,7 +267,6 @@ BOOKS_ML = {
     "Ecc": "സഭാപ്രസംഗി",
 
     "So": "ഉത്തമഗീതം",
-    "Song": "ഉത്തമഗീതം",
     "SOS": "ഉത്തമഗീതം",
 
     "Is": "യെശയ്യാവ്",
@@ -290,8 +290,6 @@ BOOKS_ML = {
 
     "Jon": "യോനാ",
 
-    "Mic": "മീഖാ",
-
     "Na": "നഹൂം",
 
     "Hb": "ഹബക്കൂക്ക്",
@@ -303,7 +301,6 @@ BOOKS_ML = {
     "Zec": "സെഖര്യാവു",
 
     "Ml": "മലാഖി",
-
 
     "Mat": "മത്തായി",
 
@@ -356,10 +353,15 @@ BOOKS_ML = {
     "Jud": "യൂദാ",
 
     "Re": "വെളിപ്പാട്",
-
-
-    
 }
+
+# Sort keys longest-first so e.g. "1Corinthians" is tried before "1Co"
+_BOOK_KEYS_SORTED = sorted(BOOKS_ML.keys(), key=len, reverse=True)
+
+# Matches things like "Isa 52:7-15", "1Chr 29:10-18", "Heb 2", "Num 1-9"
+REF_PATTERN = re.compile(
+    r'\b((?:[1-3])?[A-Za-z]+)\s+(\d+(?:-\d+)?(?::\d+(?:-\d+)?)?)\b'
+)
 
 
 def get_next_sunday():
@@ -371,10 +373,46 @@ def get_next_sunday():
 
 
 def to_malayalam(ref):
-    for en, ml in BOOKS_ML.items():
+    if not ref:
+        return ref
+    for en in _BOOK_KEYS_SORTED:
         if ref.startswith(en):
-            return ref.replace(en, ml, 1)
+            return ref.replace(en, BOOKS_ML[en], 1)
     return ref
+
+
+def extract_refs(line):
+    """Extract a list of scripture references like ['Isa 52:7-15', '2Tim 2:1-13']
+    from a line that may contain one or more references separated by spaces."""
+    if not line:
+        return []
+    return [f"{book} {chap}" for book, chap in REF_PATTERN.findall(line)]
+
+
+def line_matches_date(lines, i, date_day, date_month_upper):
+    """Handle both possible renderings of the date heading:
+    - two separate lines: '05' then 'JUL' (case-insensitive)
+    - one combined line: '05 JUL'
+    """
+    if i >= len(lines):
+        return False, 0
+
+    line = lines[i].strip()
+
+    # Combined single line, e.g. "05 JUL"
+    combined = re.match(r'^0*(\d{1,2})\s+([A-Za-z]{3,})$', line)
+    if combined:
+        day_part = combined.group(1).zfill(2)
+        month_part = combined.group(2).upper()
+        if day_part == date_day and month_part == date_month_upper:
+            return True, 1
+
+    # Two separate lines: day, then month
+    if line == date_day or line.lstrip('0') == date_day.lstrip('0'):
+        if i + 1 < len(lines) and lines[i + 1].strip().upper() == date_month_upper:
+            return True, 2
+
+    return False, 0
 
 
 def scrape_lectionary():
@@ -393,21 +431,18 @@ def scrape_lectionary():
     print("Final URL:", response.url)
     print("Downloaded:", len(response.text), "characters")
 
-    # Save HTML for debugging
     DEBUG_PATH = os.path.join(BASE_DIR, "debug.html")
     with open(DEBUG_PATH, "w", encoding="utf-8") as f:
         f.write(response.text)
-
     print(f"Debug HTML saved to: {DEBUG_PATH}")
 
     soup = BeautifulSoup(response.text, "lxml")
 
     sunday = get_next_sunday()
+    date_day = sunday.strftime("%d")           # e.g. "05"
+    date_month_upper = sunday.strftime("%b").upper()  # e.g. "JUL"
 
-    date_day = sunday.strftime("%d")      
-    date_month = sunday.strftime("%b")    
-
-    print("Looking for:", date_day, date_month)
+    print("Looking for:", date_day, date_month_upper)
 
     lines = [
         line.strip()
@@ -423,28 +458,52 @@ def scrape_lectionary():
     lesson2 = ""
     epistle = ""
     gospel = ""
+    evening1 = ""
+    evening2 = ""
+
+    found = False
 
     for i in range(len(lines) - 1):
+        matched, _consumed = line_matches_date(lines, i, date_day, date_month_upper)
+        if not matched:
+            continue
 
-        # Website stores the date as:
-        # 05
-        # Jul
-        if lines[i] == date_day and lines[i + 1] == date_month:
+        print("Found date at line", i, "->", repr(lines[i]))
+        found = True
 
-            print("Found date!")
+        # Scan forward for the Lessons / Epistle-Gospel / Evening Reading blocks,
+        # stopping once we hit the next date entry or a new month section.
+        window_end = min(i + 40, len(lines))
+        for j in range(i, window_end):
+            line_j = lines[j]
 
-            for j in range(i, min(i + 30, len(lines))):
+            # Stop if we've wandered into the next day's entry
+            if j > i and re.match(r'^0*\d{1,2}\s+[A-Za-z]{3,}$', line_j):
+                break
+            if line_j.startswith("Lectionary for"):
+                break
 
-                if lines[j] == "Lessons" and j + 2 < len(lines):
-                    lesson1 = lines[j + 1]
-                    lesson2 = lines[j + 2]
+            if line_j == "Lessons" and j + 1 < len(lines):
+                refs = extract_refs(lines[j + 1])
+                if len(refs) >= 1:
+                    lesson1 = refs[0]
+                if len(refs) >= 2:
+                    lesson2 = refs[1]
 
-                elif lines[j] == "Epistle Gospel" and j + 2 < len(lines):
-                    epistle = lines[j + 1]
-                    gospel = lines[j + 2]
-                    break
+            elif line_j.replace(" ", "") in ("Epistle/Gospel", "EpistleGospel") and j + 1 < len(lines):
+                refs = extract_refs(lines[j + 1])
+                if len(refs) >= 1:
+                    epistle = refs[0]
+                if len(refs) >= 2:
+                    gospel = refs[1]
 
-            break
+            
+
+        break
+
+    if not found:
+        print("WARNING: No matching date entry found on the page for",
+              date_day, date_month_upper)
 
     data = {
         "date": sunday.strftime("%Y-%m-%d"),
@@ -452,6 +511,8 @@ def scrape_lectionary():
         "lesson2": lesson2,
         "epistle": epistle,
         "gospel": gospel,
+        "evening1": evening1,
+        "evening2": evening2,
     }
 
     print(json.dumps(data, indent=4, ensure_ascii=False))
@@ -464,25 +525,22 @@ def save_readings():
     try:
         data = scrape_lectionary()
 
-        # Save English JSON
         with open(JSON_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
-
         print(f"Saved to {JSON_PATH}")
 
-        # Create Malayalam JSON
         data_ml = {
             "date": data["date"],
             "lesson1": to_malayalam(data["lesson1"]),
             "lesson2": to_malayalam(data["lesson2"]),
             "epistle": to_malayalam(data["epistle"]),
             "gospel": to_malayalam(data["gospel"]),
+            "evening1": to_malayalam(data["evening1"]),
+            "evening2": to_malayalam(data["evening2"]),
         }
 
-        # Save Malayalam JSON
         with open(ML_JSON_PATH, "w", encoding="utf-8") as f:
             json.dump(data_ml, f, indent=4, ensure_ascii=False)
-
         print(f"Saved to {ML_JSON_PATH}")
 
     except Exception as e:
