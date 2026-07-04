@@ -458,10 +458,33 @@ def scrape_lectionary():
     lesson2 = ""
     epistle = ""
     gospel = ""
-    evening1 = ""
-    evening2 = ""
 
     found = False
+
+    def is_epistle_label(s):
+        return s.replace(" ", "") in ("Epistle/Gospel", "EpistleGospel")
+
+    def is_date_heading(s):
+        return bool(re.match(r'^0*\d{1,2}\s+[A-Za-z]{3,}$', s))
+
+    def collect_refs(lines, start, end, needed=2):
+        """Collect references starting at `start`, walking forward line by
+        line (references may be split across multiple lines, or combined
+        onto one line) until `needed` refs are found or a new section
+        boundary / date heading is hit."""
+        refs = []
+        k = start
+        while k < end:
+            line_k = lines[k]
+            if (line_k == "Lessons" or is_epistle_label(line_k)
+                    or line_k == "Evening Reading" or is_date_heading(line_k)
+                    or line_k.startswith("Lectionary for")):
+                break
+            refs.extend(extract_refs(line_k))
+            if len(refs) >= needed:
+                break
+            k += 1
+        return refs
 
     for i in range(len(lines) - 1):
         matched, _consumed = line_matches_date(lines, i, date_day, date_month_upper)
@@ -471,39 +494,32 @@ def scrape_lectionary():
         print("Found date at line", i, "->", repr(lines[i]))
         found = True
 
-        # Scan forward for the Lessons / Epistle-Gospel / Evening Reading blocks,
-        # stopping once we hit the next date entry or a new month section.
+        # Scan forward for the Lessons / Epistle-Gospel blocks, stopping once
+        # we hit the next date entry or a new month section.
         window_end = min(i + 40, len(lines))
         for j in range(i, window_end):
             line_j = lines[j]
 
             # Stop if we've wandered into the next day's entry
-            if j > i and re.match(r'^0*\d{1,2}\s+[A-Za-z]{3,}$', line_j):
+            if j > i and is_date_heading(line_j):
                 break
             if line_j.startswith("Lectionary for"):
                 break
 
-            if line_j == "Lessons" and j + 1 < len(lines):
-                refs = extract_refs(lines[j + 1])
+            if line_j == "Lessons":
+                refs = collect_refs(lines, j + 1, window_end, needed=2)
                 if len(refs) >= 1:
                     lesson1 = refs[0]
                 if len(refs) >= 2:
                     lesson2 = refs[1]
 
-            elif line_j.replace(" ", "") in ("Epistle/Gospel", "EpistleGospel") and j + 1 < len(lines):
-                refs = extract_refs(lines[j + 1])
+            elif is_epistle_label(line_j):
+                refs = collect_refs(lines, j + 1, window_end, needed=2)
                 if len(refs) >= 1:
                     epistle = refs[0]
                 if len(refs) >= 2:
                     gospel = refs[1]
-
-            elif line_j == "Evening Reading" and j + 1 < len(lines):
-                refs = extract_refs(lines[j + 1])
-                if len(refs) >= 1:
-                    evening1 = refs[0]
-                if len(refs) >= 2:
-                    evening2 = refs[1]
-                break  # Evening Reading is always the last block for an entry
+                break  # nothing else we need comes after Epistle/Gospel
 
         break
 
@@ -517,8 +533,6 @@ def scrape_lectionary():
         "lesson2": lesson2,
         "epistle": epistle,
         "gospel": gospel,
-        "evening1": evening1,
-        "evening2": evening2,
     }
 
     print(json.dumps(data, indent=4, ensure_ascii=False))
@@ -541,8 +555,6 @@ def save_readings():
             "lesson2": to_malayalam(data["lesson2"]),
             "epistle": to_malayalam(data["epistle"]),
             "gospel": to_malayalam(data["gospel"]),
-            "evening1": to_malayalam(data["evening1"]),
-            "evening2": to_malayalam(data["evening2"]),
         }
 
         with open(ML_JSON_PATH, "w", encoding="utf-8") as f:
